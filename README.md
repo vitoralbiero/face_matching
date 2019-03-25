@@ -30,10 +30,14 @@ python3 plot_relative_freq_histogram.py -a1 ../authentic_dist1.txt -i1 ../impost
 ## Related papers:
 
 O. M. Parkhi, A. Vedaldi, and A. Zisserman. Deep face recognition. In BMVC, 2015
+
 K. He, X. Zhang, S. Ren, and J. Sun. Deep residual learning for image recognition. arXiv preprint arXiv:1512.03385,
 2015.
+
 Q. Cao, L. Shen, W. Xie, O. M. Parkhi, and A. Zisserman. Vggface2: A dataset for recognising faces across pose and age. In Face and Gesture Recognition, 2018.
+
 Y. Guo, L. Zhang, Y. Hu, X. He, and J. Gao. Ms-celeb-1m: A dataset and benchmark for large-scale face recognition. In European Conference on Computer Vision, 2016.
+
 X. Tan and B. Triggs. Enhanced local texture feature sets for face recognition under difficult lighting conditions. IEEE Transactions on Image Processing, 2010.
 
 
