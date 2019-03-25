@@ -29,7 +29,7 @@ python3 plot_relative_freq_histogram.py -a1 ../authentic_dist1.txt -i1 ../impost
 
 ## Related papers:
 
-O. M. Parkhi, A. Vedaldi, and A. Zisserman. Deep face recognition. In BMVC, 2015
+O. M. Parkhi, A. Vedaldi, and A. Zisserman. Deep face recognition. In BMVC, 2015.
 
 K. He, X. Zhang, S. Ren, and J. Sun. Deep residual learning for image recognition. arXiv preprint arXiv:1512.03385,
 2015.
