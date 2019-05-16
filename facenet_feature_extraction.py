@@ -27,6 +27,12 @@ def preprocess_fixed(img):
     return img
 
 
+def l2_normalize(x, axis=-1, epsilon=1e-10):
+    output = x / np.sqrt(np.maximum(np.sum(np.square(x), axis=axis, keepdims=True), epsilon))
+
+    return output
+
+
 def extract_features(weights, norm_type, source, destination):
     if path.isfile(source):
         full_path = True
@@ -50,6 +56,10 @@ def extract_features(weights, norm_type, source, destination):
             image_path = image_name
             image_name = path.split(image_name)[1]
 
+        if not image_path.lower().endswith('.png') and not image_path.lower().endswith('.jpg') \
+           and not image_path.lower().endswith('.bmp'):
+            continue
+
         img = image.load_img(image_path, target_size=(160, 160))
 
         # this normalization is used with Celeb dataset
@@ -64,6 +74,7 @@ def extract_features(weights, norm_type, source, destination):
             img = preprocess_fixed(img)
 
         features = model.predict(img)
+        # features = l2_normalize(features)
 
         dest_path = destination
 
@@ -84,7 +95,7 @@ def extract_features(weights, norm_type, source, destination):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Extract Features with CNN')
     parser.add_argument('--weights', '-w', help='Weight path for the FaceNet.',
-        default='/afs/crc.nd.edu/user/v/valbiero/Code/Features/weights/facenet_keras_ms1_celeb_weights.h5')
+        default='/afs/crc.nd.edu/user/v/valbiero/Code/face_matching/weights/facenet_keras_ms1_celeb_weights.h5')
     parser.add_argument('--norm_type', '-n',
                         help='Type of normalization: (1) per image; (2) fixed',
                         default=1)

@@ -1,35 +1,22 @@
-'''
-Uses weights and models implementation' from
-https://github.com/rcmalli/keras-vggface
-'''
-
 from keras.engine import Model
 import numpy as np
 from keras.preprocessing import image
-from keras_vggface.vggface import VGGFace
-from keras_vggface import utils
+from keras.applications.resnet50 import ResNet50, preprocess_input
 import argparse
 from os import path, listdir, makedirs
 
 
-def create_model(model_name):
-    # Layer Features
-    if model_name == 'vgg16':
-        layer_name = 'fc7/relu'
-    elif model_name == 'resnet50':
-        layer_name = 'flatten_1'
-    else:
-        raise Exception('Model name not recognized!')
+def create_model():
+    model = ResNet50(include_top=False, input_shape=(224, 224, 3), weights='imagenet', pooling='avg')
 
-    model = VGGFace(model=model_name)
-    out = model.get_layer(layer_name).output
-
-    return Model(model.input, out)
+    return Model(model.input, model.output)
 
 
-def extract_features(model_name, source, destination, weights=None):
-    model = create_model(model_name)
+def extract_features(source, destination, weights=None):
+    model = create_model()
+
     if weights is not None:
+        print('Loading weights from {}'.format(weights))
         model.load_weights(weights, by_name=True)
 
     if path.isfile(source):
@@ -38,11 +25,6 @@ def extract_features(model_name, source, destination, weights=None):
     else:
         full_path = False
         source_list = listdir(source)
-
-    if model_name == 'vgg16':
-        version = 1
-    else:
-        version = 2
 
     for image_name in source_list:
         if not full_path:
@@ -57,8 +39,15 @@ def extract_features(model_name, source, destination, weights=None):
 
         img = image.load_img(image_path, target_size=(224, 224))
         img = image.img_to_array(img)
+
+        if weights is not None:
+            img = img[..., ::-1]
+            img /= 255
+
         img = np.expand_dims(img, axis=0)
-        img = utils.preprocess_input(img, version=version)
+
+        if weights is None:
+            img = preprocess_input(img)
 
         features = model.predict(img)
 
@@ -80,7 +69,6 @@ def extract_features(model_name, source, destination, weights=None):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Extract features with CNN')
-    parser.add_argument('--net', '-n', help='Net to run (vgg16 or resnet50.', default='resnet50')
     parser.add_argument('--source', '-s', help='Folder with images.')
     parser.add_argument('--dest', '-d', help='Folder to save the extractions.')
     parser.add_argument('--weights', '-w', help='Weight path for the network.', default=None)
@@ -90,4 +78,4 @@ if __name__ == '__main__':
     if not path.exists(args.dest):
         makedirs(args.dest)
 
-    extract_features(args.net, args.source, args.dest)
+    extract_features(args.source, args.dest, args.weights)
