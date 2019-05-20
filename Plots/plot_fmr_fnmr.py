@@ -5,6 +5,7 @@ from sklearn import metrics
 import argparse
 import matplotlib.pyplot as plt
 from os import path, makedirs
+from matplotlib.patches import Rectangle
 
 
 def compute_roc(authentic_file, impostor_file):
@@ -45,6 +46,20 @@ def compute_roc(authentic_file, impostor_file):
 
 def plot(title, fpr1, tpr1, thr1, fnr1, l1, fpr2, tpr2, thr2, fnr2, l2,
          fpr3, tpr3, fnr3, thr3, l3):
+    label_kwargs1 = {}
+    label_kwargs1['bbox'] = dict(
+        boxstyle='round,pad=0.5', fc='C1', alpha=0.5,
+    )
+
+    label_kwargs2 = {}
+    label_kwargs2['bbox'] = dict(
+        boxstyle='round,pad=0.5', fc='C0', alpha=0.5,
+    )
+
+    label_kwargs3 = {}
+    label_kwargs3['bbox'] = dict(
+        boxstyle='round,pad=0.5', fc='C3', alpha=0.5,
+    )
 
     # FMR =  FPR (False Match Rate)
     # FNMR = FNR (False Non-Match Rate)
@@ -55,8 +70,10 @@ def plot(title, fpr1, tpr1, thr1, fnr1, l1, fpr2, tpr2, thr2, fnr2, l2,
     plt.rcParams['font.size'] = 12
 
     plt.grid(True, zorder=0, linestyle='dashed')
-    if title is not None:
-        plt.title(title)
+
+    # if title is not None:
+    #    plt.title(title)
+
     plt.gca().set_yscale('log')
 
     plt.plot(thr1[fpr1 > low_range1], fpr1[fpr1 > low_range1], 'C1--', label=l1 + ' FMR')
@@ -70,6 +87,23 @@ def plot(title, fpr1, tpr1, thr1, fnr1, l1, fpr2, tpr2, thr2, fnr2, l2,
         plt.plot(thr3[fpr3 > low_range1], fpr3[fpr3 > low_range1], 'C3--', label=l3 + ' FMR')
         plt.plot(thr3[fnr3 > low_range2], fnr3[fnr3 > low_range2], 'C3', label=l3 + ' FNMR')
 
+    colors = []
+    labels = []
+
+    colors.append('C1')
+    k = int(np.where(np.round(fpr1, 3) == np.round(fnr1, 3))[0][0])
+    labels.append('EER: {}'.format(np.round(fpr1[k], 4)))
+
+    if l2 is not None:
+        colors.append('C0')
+        k = int(np.where(np.round(fpr2, 3) == np.round(fnr2, 3))[0][0])
+        labels.append('EER: {}'.format(np.round(fpr2[k], 4)))
+
+    if l3 is not None:
+        colors.append('C3')
+        k = int(np.where(np.round(fpr3, 3) == np.round(fnr3, 3))[0][0])
+        labels.append('EER: {}'.format(np.round(fpr3[k], 4)))
+
     if l3 is not None:
         ncol = 3
     elif l2 is not None:
@@ -77,14 +111,26 @@ def plot(title, fpr1, tpr1, thr1, fnr1, l1, fpr2, tpr2, thr2, fnr2, l2,
     else:
         ncol = 2
 
-    plt.legend(bbox_to_anchor=(0, 1.02, 1, 0.2), loc="lower left",
-               mode="expand", borderaxespad=0, ncol=ncol, fontsize=12, edgecolor='black', handletextpad=0.3)
+    legend1 = plt.legend(bbox_to_anchor=(0, 1.02, 1, 0.2), loc="lower left",
+                         mode="expand", borderaxespad=0, ncol=ncol, fontsize=12, edgecolor='black', handletextpad=0.3)
     # plt.xlim([0, 1])
     plt.ylim([min(low_range1, low_range2), 1e0])
     plt.ylabel('Rate')
     plt.xlabel('Threshold')
 
     plt.tight_layout(pad=0)
+
+    colors = np.asarray(colors)
+    labels = np.asarray(labels)
+
+    handles = []
+    for c in colors:
+        handles.append(Rectangle((0, 0), 1, 1, color=c, fill=True))
+
+    handles = np.asarray(handles)
+
+    plt.legend(handles, labels, loc="lower left", fontsize=10)
+    plt.gca().add_artist(legend1)
 
     return plt
 
@@ -126,4 +172,4 @@ if __name__ == '__main__':
 
     plot_path = path.join(args.dest, args.name + '.png')
 
-    plt.savefig(plot_path, dpi=600)
+    plt.savefig(plot_path, dpi=300)
