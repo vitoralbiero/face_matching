@@ -7,9 +7,18 @@ from os import path, listdir, makedirs
 
 
 def create_model():
-    model = ResNet50(include_top=False, input_shape=(224, 224, 3), weights='imagenet', pooling='avg')
+    model = ResNet50(include_top=False, input_shape=(224, 224, 3), weights=None, pooling='avg')
 
     return Model(model.input, model.output)
+
+
+def preprocess(img):
+    img = img[..., ::-1]
+    img[..., 0] -= 91.4953
+    img[..., 1] -= 103.8827
+    img[..., 2] -= 131.0912
+
+    return img
 
 
 def extract_features(source, destination, weights=None):
@@ -40,11 +49,12 @@ def extract_features(source, destination, weights=None):
         img = image.load_img(image_path, target_size=(224, 224))
         img = image.img_to_array(img)
 
-        if weights is not None:
-            img = img[..., ::-1]
-            img /= 255
-
         img = np.expand_dims(img, axis=0)
+
+        if weights is not None:
+            # img = img[..., ::-1]
+            # img /= 255
+            img = preprocess(img)
 
         if weights is None:
             img = preprocess_input(img)

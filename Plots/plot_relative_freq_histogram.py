@@ -105,7 +105,7 @@ def plot_histogram(authentic_file1, impostor_file1, l1,
         ncol = 2
 
     legend1 = plt.legend(bbox_to_anchor=(0, 1.02, 1, 0.2), loc="lower left",
-                         mode="expand", borderaxespad=0, ncol=ncol, fontsize=12, edgecolor='black', handletextpad=0.3)
+                         mode="expand", borderaxespad=0, ncol=1, fontsize=12, edgecolor='black', handletextpad=0.3)
 
     # plt.gca().invert_xaxis()
     plt.ylabel('Relative Frequency')
@@ -180,14 +180,14 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    if not path.exists(args.dest):
+        makedirs(args.dest)
+
     plot_histogram(args.authentic1, args.impostor1, args.label1,
                    args.authentic2, args.impostor2, args.label2,
                    args.authentic3, args.impostor3, args.label3,
                    args.authentic4, args.impostor4, args.label4,
                    args.title)
-
-    if not path.exists(args.dest):
-        makedirs(args.dest)
 
     plot_path = path.join(args.dest, args.name + '.png')
 

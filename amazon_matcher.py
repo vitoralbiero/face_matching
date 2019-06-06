@@ -10,11 +10,11 @@ def match_faces(probe_path, gallery_path):
     client = boto3.client('rekognition')
 
     for i in range(len(probe)):
-
+        start = i
         if gallery_path != probe_path:
-            i = -1
+            start = -1
 
-        for j in range(i + 1, len(gallery)):
+        for j in range(start + 1, len(gallery)):
             sourceFile = path.join(probe_path, probe[i])
             targetFile = path.join(gallery_path, gallery[j])
 
@@ -33,10 +33,9 @@ def match_faces(probe_path, gallery_path):
                     print('Similarity between {0} and {1}: {2}'.
                           format(probe[i], gallery[j], similarity))
                     print('Targer quality: {}'.format(quality))
-                    print()
 
             except:
-                print('Error trying to match faecs {0} and {1}'.format(
+                print('Error trying to match faces {0} and {1}'.format(
                     probe[i], gallery[j]))
 
             imageSource.close()
@@ -44,7 +43,7 @@ def match_faces(probe_path, gallery_path):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Amazon matcher')
+    parser = argparse.ArgumentParser(description='Amazon matcher.')
     parser.add_argument('-probe', '-p', help='Probe image list.')
     parser.add_argument('-gallery', '-g', help='Gallery image list.')
 

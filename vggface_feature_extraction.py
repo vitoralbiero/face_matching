@@ -65,8 +65,7 @@ def extract_features(model_name, source, destination, weights=None):
         dest_path = destination
 
         if full_path:
-            sub_folder = path.basename(
-                path.normpath(path.split(image_path)[0]))
+            sub_folder = path.basename(path.normpath(path.split(image_path)[0]))
 
             dest_path = path.join(destination, sub_folder)
 

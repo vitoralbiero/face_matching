@@ -25,6 +25,7 @@ def match_features(output, group):
 
     # run this in multiple processes to speed things up
     pool = Pool(os.cpu_count())
+    print(os.cpu_count())
 
     impostor_file = open(impostor_save, 'w')
     authentic_file = open(authentic_save, 'w')
@@ -103,7 +104,11 @@ def match(probe):
 
         comparison = (i, j, score)
 
-        if ID_SIZE > 0:
+        if DATASET == 'CHIYA':
+            image_a_label = image_a[:-5]
+            image_b_label = image_b[:-5]
+
+        elif ID_SIZE > 0:
             image_a_label = image_a[:ID_SIZE]
             image_b_label = image_b[:ID_SIZE]
         else:
@@ -160,6 +165,8 @@ if __name__ == '__main__':
     elif DATASET == 'MORPH':
         ID_SIZE = 6
     elif DATASET == 'IJBB':
+        ID_SIZE = -1
+    elif DATASET == 'CHIYA':
         ID_SIZE = -1
     else:
         raise Exception('NO FILE PATTERN FOR THE DATASET INFORMED.')

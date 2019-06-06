@@ -70,8 +70,8 @@ def plot(title, fpr1, tpr1, thr1, l1, fpr2, tpr2, thr2, l2,
 
     plt.grid(True, zorder=0, linestyle='dashed')
 
-    if title is not None:
-        plt.title(title)
+    #if title is not None:
+    #    plt.title(title)
 
     plt.gca().set_xscale('log')
 
@@ -81,25 +81,25 @@ def plot(title, fpr1, tpr1, thr1, l1, fpr2, tpr2, thr2, l2,
 
     range = end_x - begin_x
 
-    auc1 = metrics.auc(fpr1[(fpr1 >= begin_x) & (fpr1 <= end_x)], tpr1[(fpr1 >= begin_x) & (fpr1 <= end_x)])
-    auc1_per = auc1 / range
-    print(auc1_per)
+    # auc1 = metrics.auc(fpr1[(fpr1 >= begin_x) & (fpr1 <= end_x)], tpr1[(fpr1 >= begin_x) & (fpr1 <= end_x)])
+    # auc1_per = auc1 / range
+    # print(auc1_per)
 
     plt.plot(fpr1, tpr1, 'C1', label=l1)
     # + ' - AUC ({:0.5f})'.format(auc1_per))
 
     if l2 is not None:
-        auc2 = metrics.auc(fpr2[(fpr2 >= begin_x) & (fpr2 <= end_x)], tpr2[(fpr2 >= begin_x) & (fpr2 <= end_x)])
-        auc2_per = auc2 / range
-        print(auc2_per)
+        # auc2 = metrics.auc(fpr2[(fpr2 >= begin_x) & (fpr2 <= end_x)], tpr2[(fpr2 >= begin_x) & (fpr2 <= end_x)])
+        # auc2_per = auc2 / range
+        # print(auc2_per)
 
         plt.plot(fpr2, tpr2, 'C0', label=l2)
         # + ' - AUC ({:0.5f})'.format(auc2_per))
 
     if l3 is not None:
-        auc3 = metrics.auc(fpr3[(fpr3 >= begin_x) & (fpr3 <= end_x)], tpr3[(fpr3 >= begin_x) & (fpr3 <= end_x)])
-        auc3_per = auc3 / range
-        print(auc3_per)
+        # auc3 = metrics.auc(fpr3[(fpr3 >= begin_x) & (fpr3 <= end_x)], tpr3[(fpr3 >= begin_x) & (fpr3 <= end_x)])
+        # auc3_per = auc3 / range
+        # print(auc3_per)
 
         plt.plot(fpr3, tpr3, 'C3', label=l3)
         # + ' - AUC ({:0.5f})'.format(auc3_per))
@@ -171,14 +171,12 @@ def plot(title, fpr1, tpr1, thr1, l1, fpr2, tpr2, thr2, l2,
 
     plt.legend(loc='lower right', fontsize=12)
     plt.xlim([begin_x, end_x])
-    plt.ylim([0.7, 1])
+    plt.ylim([0.5, 1])
     # plt.ylim([0, 1])
     plt.ylabel('True Positive Rate')
     plt.xlabel('False Match Rate')
 
     plt.tight_layout(pad=0)
-
-    return plt
 
 
 if __name__ == '__main__':
@@ -217,4 +215,4 @@ if __name__ == '__main__':
 
     plot_path = path.join(args.dest, args.name + '.png')
 
-    plt.savefig(plot_path, dpi=600)
+    plt.savefig(plot_path, dpi=300)
