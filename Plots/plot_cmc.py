@@ -29,6 +29,15 @@ def plot(title, total_ranks, acc1, l1, acc2, l2, acc3, l3):
     if title is not None:
         plt.title(title)
 
+    if total_ranks is None:
+        total_ranks = np.max(acc1)
+
+    if args.rank2 is not None:
+        total_ranks = max(total_ranks, np.max(acc2))
+
+    if args.rank3 is not None:
+        total_ranks = max(total_ranks, np.max(acc3))
+
     ranks = np.arange(1, total_ranks + 1)
 
     plt.plot(ranks, acc1, 'C1', label=l1)
@@ -40,7 +49,7 @@ def plot(title, total_ranks, acc1, l1, acc2, l2, acc3, l3):
         plt.plot(ranks, acc3, 'C3', label=l3)
 
     plt.legend(loc='lower right')
-    # plt.xlim([1, total_ranks])
+    plt.xlim([1, total_ranks])
     # plt.ylim([0, 1])
     plt.ylabel('Accuracy')
     plt.xlabel('Rank')

@@ -109,7 +109,7 @@ def plot(title, fpr1, tpr1, thr1, fnr1, l1, fpr2, tpr2, thr2, fnr2, l2,
     elif l2 is not None:
         ncol = 2
     else:
-        ncol = 2
+        ncol = 1
 
     legend1 = plt.legend(bbox_to_anchor=(0, 1.02, 1, 0.2), loc="lower left",
                          mode="expand", borderaxespad=0, ncol=ncol, fontsize=12, edgecolor='black', handletextpad=0.3)

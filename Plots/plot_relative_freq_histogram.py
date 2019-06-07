@@ -102,10 +102,10 @@ def plot_histogram(authentic_file1, impostor_file1, l1,
     elif l2 is not None:
         ncol = 2
     else:
-        ncol = 2
+        ncol = 1
 
     legend1 = plt.legend(bbox_to_anchor=(0, 1.02, 1, 0.2), loc="lower left",
-                         mode="expand", borderaxespad=0, ncol=1, fontsize=12, edgecolor='black', handletextpad=0.3)
+                         mode="expand", borderaxespad=0, ncol=ncol, fontsize=12, edgecolor='black', handletextpad=0.3)
 
     # plt.gca().invert_xaxis()
     plt.ylabel('Relative Frequency')
