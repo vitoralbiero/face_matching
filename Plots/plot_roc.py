@@ -70,8 +70,8 @@ def plot(title, fpr1, tpr1, thr1, l1, fpr2, tpr2, thr2, l2,
 
     plt.grid(True, zorder=0, linestyle='dashed')
 
-    #if title is not None:
-    #    plt.title(title)
+    if title is not None and title != '' and title != ' ':
+        plt.title(title)
 
     plt.gca().set_xscale('log')
 
@@ -79,10 +79,10 @@ def plot(title, fpr1, tpr1, thr1, l1, fpr2, tpr2, thr2, l2,
     end_x = 1e0
     print(begin_x, end_x)
 
-    range = end_x - begin_x
+    # range_f = end_x - begin_x
 
     # auc1 = metrics.auc(fpr1[(fpr1 >= begin_x) & (fpr1 <= end_x)], tpr1[(fpr1 >= begin_x) & (fpr1 <= end_x)])
-    # auc1_per = auc1 / range
+    # auc1_per = auc1 / range_f
     # print(auc1_per)
 
     plt.plot(fpr1, tpr1, 'C1', label=l1)
@@ -90,7 +90,7 @@ def plot(title, fpr1, tpr1, thr1, l1, fpr2, tpr2, thr2, l2,
 
     if l2 is not None:
         # auc2 = metrics.auc(fpr2[(fpr2 >= begin_x) & (fpr2 <= end_x)], tpr2[(fpr2 >= begin_x) & (fpr2 <= end_x)])
-        # auc2_per = auc2 / range
+        # auc2_per = auc2 / range_f
         # print(auc2_per)
 
         plt.plot(fpr2, tpr2, 'C0', label=l2)
@@ -98,7 +98,7 @@ def plot(title, fpr1, tpr1, thr1, l1, fpr2, tpr2, thr2, l2,
 
     if l3 is not None:
         # auc3 = metrics.auc(fpr3[(fpr3 >= begin_x) & (fpr3 <= end_x)], tpr3[(fpr3 >= begin_x) & (fpr3 <= end_x)])
-        # auc3_per = auc3 / range
+        # auc3_per = auc3 / range_f
         # print(auc3_per)
 
         plt.plot(fpr3, tpr3, 'C3', label=l3)
@@ -106,32 +106,48 @@ def plot(title, fpr1, tpr1, thr1, l1, fpr2, tpr2, thr2, l2,
 
     thrs = [0.00001, 0.0001, 0.001, 0.01, 0.1]
 
+    if l2 is not None:
+        if l3 is not None:
+            save_tprs = np.zeros(shape=(4, len(thrs)))
+        else:
+            save_tprs = np.zeros(shape=(3, len(thrs)))
+    else:
+        save_tprs = np.zeros(shape=(2, len(thrs)))
+
     offset = 2
 
     invert = 1
 
-    for i in thrs:
+    for i in range(len(thrs)):
         y_pos = -30
 
-        if i != 0.00001:
+        save_tprs[0, i] = thrs[i]
+
+        if thrs[i] != 0.00001:
             offset = 0
 
-        k = find_nearest(fpr1, i)
+        k = find_nearest(fpr1, thrs[i])
         t1 = str(np.round(thr1[k], 2) * invert)
         x1 = fpr1[k + offset]
         y1 = tpr1[k]
 
+        save_tprs[1, i] = y1
+
         if l2 is not None:
-            k = find_nearest(fpr2, i)
+            k = find_nearest(fpr2, thrs[i])
             t2 = str(np.round(thr2[k], 2) * invert)
             x2 = fpr2[k + offset]
             y2 = tpr2[k]
 
+            save_tprs[2, i] = y2
+
         if l3 is not None:
-            k = find_nearest(fpr3, i)
+            k = find_nearest(fpr3, thrs[i])
             t3 = str(np.round(thr3[k], 2) * invert)
             x3 = fpr3[k + offset]
             y3 = tpr3[k]
+
+            save_tprs[3, i] = y3
 
         # y_pos = -55
 
@@ -171,12 +187,14 @@ def plot(title, fpr1, tpr1, thr1, l1, fpr2, tpr2, thr2, l2,
 
     plt.legend(loc='lower right', fontsize=12)
     plt.xlim([begin_x, end_x])
-    plt.ylim([0.5, 1])
+    plt.ylim([0.7, 1])
     # plt.ylim([0, 1])
     plt.ylabel('True Positive Rate')
     plt.xlabel('False Match Rate')
 
     plt.tight_layout(pad=0)
+
+    return save_tprs
 
 
 if __name__ == '__main__':
@@ -207,12 +225,15 @@ if __name__ == '__main__':
     if args.authentic3 is not None:
         fpr3, tpr3, thr3 = compute_roc(args.authentic3, args.impostor3)
 
-    plot(args.title, fpr1, tpr1, thr1, args.label1,
-         fpr2, tpr2, thr2, args.label2, fpr3, tpr3, thr3, args.label3)
+    save_tprs = plot(args.title, fpr1, tpr1, thr1, args.label1,
+                     fpr2, tpr2, thr2, args.label2, fpr3, tpr3, thr3, args.label3)
 
     if not path.exists(args.dest):
         makedirs(args.dest)
 
     plot_path = path.join(args.dest, args.name + '.png')
+    tprs_path = path.join(args.dest, args.name + '.txt')
+
+    np.savetxt(tprs_path, save_tprs, delimiter=' ', fmt='%s')
 
     plt.savefig(plot_path, dpi=300)
