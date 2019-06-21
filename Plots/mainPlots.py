@@ -29,7 +29,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG,
                    format = formatter)
 
 
-
+#function reads the file in parallel
 def load_files(fpath, chunkStart, chunkSize):
     
     with open(fpath) as tid:
@@ -46,6 +46,7 @@ def load_files(fpath, chunkStart, chunkSize):
                 scores.append(vals[2])
     return scores
 
+#function split the files into smaller chuks to be used by different processes
 def splitfile(fname,size=1024*1024):
     fileEnd = os.path.getsize(fname)
     loopover = True
@@ -60,6 +61,7 @@ def splitfile(fname,size=1024*1024):
             if cursorpos > fileEnd:
                 loopover = False
 
+#collecting the outputs of the jobs processed by different cores
 def getScores(ffile):
     
     pool = mp.Pool(args.numCores)
@@ -140,7 +142,7 @@ def plot_histogram(aScores,iScores,ofpath,dname):
 def plot_roc(data,fname):
 
     numAlgos = len(data.keys())
-
+    colors = ['r','g','b','c','m','y','orange','brown','black']
     plt.rcParams["figure.figsize"] = [6, 5]
     plt.rcParams['font.size'] = 12
     plt.grid(True, zorder=0, linestyle='dashed')
@@ -151,18 +153,17 @@ def plot_roc(data,fname):
 
     ranges = end_x - begin_x
     
-    cmap = plt.get_cmap('viridis')
-    colors = cmap(np.linspace(0, 1, len(data.keys()))) 
-    for i,eachk in enumerate(data.keys()):
+    
+    for i,eachk in enumerate(sorted(data.keys())):
         rocmetrics = data[eachk]
-        plt.plot(rocmetrics['fpr'],rocmetrics['tpr'], color=colors[i],label=eachk)
+        plt.plot(rocmetrics['fpr'],rocmetrics['tpr'], color=colors[i],label=eachk,linewidth=2.0)
 
     plt.legend(loc='lower right', fontsize=12)
     plt.xlim([begin_x, end_x])
     plt.ylim([0.0, 1])
     # plt.ylim([0, 1])
     plt.ylabel('True Positive Rate')
-    plt.xlabel('False Match Rate')
+    plt.xlabel('False Accept Rate')
     plt.savefig(fname,dpi=300)
     plt.close()
     
