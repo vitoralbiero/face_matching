@@ -23,14 +23,19 @@ def get_ranks(authentic_file, impostor_file, label_file_probe, label_file_galler
     authentic, impostor, label_probe, label_gallery = load_files(
         authentic_file, impostor_file, label_file_probe, label_file_gallery)
 
+    print authentic[0,:]
+    print impostor[0,:]
+    print label_probe[0,:]
+
     ranks = []
 
     for i in range(len(label_probe)):
         label_idx = label_probe[i, 0]
-
+        print label_idx
+        print authentic[:, 0] == label_idx
         rank = 0
         best_authentic = np.max(authentic[authentic[:, 0] == label_idx][:, 2].astype(float))
-
+        print best_authentic
         if label_gallery is None:
             best_authentic = max(best_authentic, np.max(authentic[authentic[:, 1] == label_idx][:, 2].astype(float)))
 
