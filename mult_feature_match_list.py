@@ -47,6 +47,18 @@ def match_features(output, group):
         if label is not None:
             labels_file.append(label)
 
+    if GALLERY_FILE != PROBE_FILE:
+        labels_gallery = path.join(output, '{}_labels_gallery.txt'.format(group))
+        labels_gallery_file = []
+
+        for j in range(len(GALLERY)):
+            image_b_path = GALLERY[j]
+            image_b = path.split(image_b_path)[1]
+            label = (j, image_b[:-4])
+            labels_gallery_file.append(label)
+
+        np.savetxt(labels_gallery, labels_gallery_file, delimiter=' ', fmt='%s')
+
     impostor_file.close()
     authentic_file.close()
     labels_file = np.array(labels_file)
@@ -80,10 +92,12 @@ def match(probe):
 
     label = (i, image_a[:-4])
 
-    if GALLERY_FILE != PROBE_FILE:
-        i = -1
+    start = i
 
-    for j in range(i + 1, len(GALLERY)):
+    if GALLERY_FILE != PROBE_FILE:
+        start = -1
+
+    for j in range(start + 1, len(GALLERY)):
         image_b_path = GALLERY[j]
         image_b = path.split(image_b_path)[1]
 
