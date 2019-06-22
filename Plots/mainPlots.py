@@ -1,5 +1,5 @@
 '''
-
+usage = python mainPlots.py resultsDir -a UMD STR RankOne_D -d Age_18_1819 Age_1213_17181920 -p cmcPlot rocPlot densityPlot -m 
 Plot the following plots,
 
 1. genuine and imposter distributions.
@@ -22,6 +22,7 @@ import seaborn as sns
 from matplotlib.offsetbox import AnchoredText
 from sklearn import metrics
 from collections import defaultdict
+import csv
 
 logger = logging.getLogger(__name__)
 formatter = '%(asctime)s:%(levelname)s:%(name)s:%(lineno)d:%(message)s'
@@ -36,14 +37,11 @@ def load_files(fpath, chunkStart, chunkSize):
         tid.seek(chunkStart)
         lines = tid.read(chunkSize).splitlines()
         scores = []
+        probeIds = []
+        galleryIds = []
         for eachline in lines:
             vals = eachline.rstrip('\n').split(' ')
-            if len(vals) == 1:
-                scores.append(vals[0])
-            elif len(vals) == 2:
-                scores.append((vals[0],vals[1]))
-            elif len(vals) == 3:
-                scores.append(vals[2])
+            scores.append(vals)
     return scores
 
 #function split the files into smaller chuks to be used by different processes
@@ -62,16 +60,16 @@ def splitfile(fname,size=1024*1024):
                 loopover = False
 
 #collecting the outputs of the jobs processed by different cores
-def getScores(ffile):
+def getScores(ffile,ncores):
     
-    pool = mp.Pool(args.numCores)
+    pool = mp.Pool(ncores)
     jobs = []
     for idx,(start,bSize) in enumerate(splitfile(ffile,1024*1024)):
         jobs.append(pool.apply_async(load_files,(ffile,start,bSize)))
     
     tmpScores = []
     
-    for eachjob in jobs:
+    for idx,eachjob in enumerate(jobs):
         tmpScores.extend(eachjob.get())
 
     logger.info('The number of score read from {} is {}'.format(ffile,len(tmpScores)))
@@ -166,7 +164,56 @@ def plot_roc(data,fname):
     plt.xlabel('False Accept Rate')
     plt.savefig(fname,dpi=300)
     plt.close()
+
+def plot_cmc(data,rankn,fname,tname):
+    numAlgos = len(data.keys())
+    colors = ['r','g','b','c','m','y','orange','brown','black']
+    plt.rcParams["figure.figsize"] = [6, 5]
+    plt.rcParams['font.size'] = 12
+    plt.grid(True, zorder=0, linestyle='dashed')
+
+    with open(tname,'w') as csvid:
+        csvwriter = csv.writer(csvid,delimiter=',')
+        #print range(1,rankn+1)
+        xvals = range(1,rankn+1)
+        csvwriter.writerow(xvals)
+        for i,eachk in enumerate(sorted(data.keys())):
+            #print xvals, data[eachk], data[eachk][0:rankn]*100
+            plt.plot(xvals,data[eachk][0:rankn]*100,colors[i],label=eachk,linewidth=2)
+            csvwriter.writerow(data[eachk][0:rankn]*100)
+
+    plt.legend(loc='lower right', fontsize=12)
+    #plt.xlim([begin_x, end_x])
+    plt.ylim([0.0, 100])
+    # plt.ylim([0, 1])
+    plt.ylabel('Retrieval Rate')
+    plt.xlabel('Rank')
+    plt.savefig(fname,dpi=300)
+    plt.close()
+
+def compute_ranks(aComps,iComps, idtoimgMappings,ncores):
+    idtoimgMappings = dict(idtoimgMappings)
+    aComps = np.asarray(aComps,dtype=float)
+    iComps = np.asarray(iComps,dtype=float)
+    galleryIds = np.unique(np.concatenate((aComps[:,1],iComps[:,1])))
+    probeIds = np.unique(np.concatenate((aComps[:,0],iComps[:,0])))
+    #probeIds = list(probeIds)
+
+    #print galleryIds.shape, probeIds.shape 
+    ranks = np.zeros(galleryIds.shape[0])
+    for pidx in range(0,probeIds.shape[0]):
+        if pidx >= 0:
+            acompScores = aComps[aComps[:,0] == probeIds[pidx]]
+            acompScoresIdx = np.argmax(acompScores[:,2])
+            acompScores = acompScores[acompScoresIdx]
+            icompScores = iComps[iComps[:,0] == probeIds[pidx]]
+            #find the number of comparisons greater than the match comparison
+            tmprank = len(icompScores[icompScores[:,2] > acompScores[2]])  
+            ranks[tmprank] += 1
+    ranks = np.cumsum(ranks)/float(probeIds.shape[0])
     
+    return ranks
+            
 def parserArguments():
 
     description = '''Create the directory structure to store the results'''
@@ -177,8 +224,8 @@ def parserArguments():
 
     parser.add_argument('-n','--numCores',dest='numCores',type=int,default=8)
     parser.add_argument('-a', '--algolist', nargs='*', dest='algorithms', default=['UMD','STR','RankOne_D'],help='list all the algorithms')
-    parser.add_argument('-d', '--datasetnames', nargs='*', dest='datasetnames', default=['Age_18_1819','Age_1213_17181920'],help='list all the datasets')
-    parser.add_argument('-p', '--plots', nargs='*', dest='plotsofinterest', default=['rocPlot','densityPlot'],help='list all the plots to plot')
+    parser.add_argument('-d', '--datasetnames', nargs='*', dest='datasetnames', default=['Age_1213_17181920','Age_18_1819'],help='list all the datasets')
+    parser.add_argument('-p', '--plots', nargs='*', dest='plotsofinterest', default=['cmcPlot','rocPlot','densityPlot'],help='list all the plots to plot')
     parser.add_argument('-e', '--expts', nargs='*', dest='expts',default=['expt1'],help='list all the experiments')
     parser.add_argument('-m', '--manual', action='store_true', dest='manualFD',help='If set to True it will use the manual face detection results and not the inbuilt one')
     parser.add_argument('rootDir', help='specify the root directory to store the results')
@@ -201,6 +248,8 @@ if __name__ == '__main__':
         for eache in expts:
             if 'rocPlot' in plotsofinterest:
                 rocDict = defaultdict(lambda: defaultdict(dict))
+            if 'cmcPlot' in plotsofinterest:
+                cmcDict = {}
             for eacha in algorithms:
                 
                 if args.manualFD:
@@ -208,20 +257,21 @@ if __name__ == '__main__':
                 else:
                     suffix_ = 'auto'
 
-                print suffix_
                 authenticFile = os.path.join(rootDir,eachd,'Algorithms',eacha, suffix_ + '_' + eachd + '_' + eacha + '_' + eache + '_authenticScores.txt')
                 imposterFile = os.path.join(rootDir,eachd,'Algorithms',eacha, suffix_ + '_' + eachd + '_' + eacha + '_' + eache + '_imposterScores.txt')
                 labelFile = os.path.join(rootDir,eachd,'Algorithms',eacha, suffix_ + '_' + eachd + '_' + eacha + '_' + eache + '_labels.txt')
                 
                 #authentic scores - a list of scores in string format are resturned
-                authenticScores = getScores(authenticFile)
+                authenticComparisons = getScores(authenticFile, args.numCores)
+                authenticScores = [eachval[2] if (len(eachval) == 3) else eachval[0] for eachval in authenticComparisons]
                 authenticScores = np.asarray(authenticScores,dtype=float)
                 #imposter scores - a list of scores in string format are returned
-                imposterScores = np.asarray(getScores(imposterFile),dtype=float)
+                imposterComparisons = getScores(imposterFile,args.numCores)
+                imposterScores = [eachval[2] if (len(eachval) == 3) else eachval[0] for eachval in imposterComparisons]
                 imposterScores = np.asarray(imposterScores,dtype=float)
                 #labels - a list of tuples is returned (a,b) -> a is the id and b is the image name
-                labels = getScores(labelFile)
-
+                labels = getScores(labelFile,args.numCores)
+                print labels[0]                
                 if 'densityPlot' in plotsofinterest:
                     ofile = os.path.join(os.path.join(rootDir,eachd,'Algorithms',eacha, suffix_ + '_' + eachd + '_' + eacha + '_' + eache + '_densityPlot.png'))
                     plot_seaborn_histogram(authenticScores,imposterScores,ofile,eachd,eacha)
@@ -238,9 +288,19 @@ if __name__ == '__main__':
                     authentic_y = None
                     imposter_y = None
                     y = None
-            
+                
+                if 'cmcPlot' in plotsofinterest:
+                    eranks = compute_ranks(authenticComparisons, imposterComparisons, labels, args.numCores)
+                    cmcDict[eacha] = eranks
+                    eranks = None
+
             if 'rocPlot' in plotsofinterest:
                 figname = os.path.join(rootDir,eachd,'Algorithms', suffix_ + '_' + eachd + '_' + eache + '_rocPlot.png')
                 #plot the roc curves for each experiment 
                 plot_roc(rocDict,figname)
-                
+            
+            if 'cmcPlot' in plotsofinterest:
+                figname = os.path.join(rootDir,eachd,'Algorithms', suffix_ + '_' + eachd + '_' + eache + '_cmcPlot.png')
+                txtname = os.path.join(rootDir,eachd,'Algorithms', suffix_ + '_' + eachd + '_' + eache + '_cmcRanks.txt')
+                #plot the roc curves for each experiment 
+                plot_cmc(cmcDict,10,figname,txtname)    

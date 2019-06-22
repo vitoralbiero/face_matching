@@ -30,7 +30,7 @@ def get_ranks(authentic_file, impostor_file, label_file_probe, label_file_galler
 
         rank = 0
         label_scores = authentic[authentic[:, 0] == label_idx][:, 2].astype(float)
-
+        #print label_scores
         best_authentic = -float('Inf')
         # check if subject with label_idx have scores in collum 1
         if len(label_scores) > 0:
