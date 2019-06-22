@@ -6,6 +6,11 @@ Plot the following plots,
 2. cmc curves
 3. roc curves
 
+The code will need the authenticScores.txt, imposterScores.txt and labels.txt
+labels.txt should contain both the imposter and geunie score labels.
+
+TODO - Add comments!
+
 Author: Nisha Srinivas
 @uncw
 '''
