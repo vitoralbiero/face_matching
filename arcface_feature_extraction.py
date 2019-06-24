@@ -52,7 +52,6 @@ def extract_features(model, source, destination, weights=None):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Extract features with CNN')
-    parser.add_argument('--net', '-n', help='Net to run (vgg16 or resnet50.', default='resnet50')
     parser.add_argument('--source', '-s', help='Folder with images.')
     parser.add_argument('--dest', '-d', help='Folder to save the extractions.')
 
@@ -60,6 +59,7 @@ if __name__ == '__main__':
     parser.add_argument('--image-size', default='112,112', help='')
     parser.add_argument('--model', help='path to model.', default='../../insightface/models/model-r100-ii/model,0')
     parser.add_argument('--ga-model', default='', help='path to load model.')
+    parser.add_argument('--gender_model', default='', help='path to load model.')
     parser.add_argument('--gpu', default=0, type=int, help='gpu id')
     parser.add_argument('--det', default=1, type=int, help='mtcnn: 1 means using R+O, 0 means detect from begining')
     parser.add_argument('--flip', default=0, type=int, help='whether do lr flip aug')
