@@ -196,26 +196,51 @@ def plot_cmc(data,rankn,fname,tname):
     plt.savefig(fname,dpi=300)
     plt.close()
 
+def getRank(pidx):
+    
+    global aComps_g
+    global iComps_g
+    global probeIds_g
+
+    acompScores = aComps_g[aComps_g[:,0] == probeIds_g[pidx]]
+    acompScoresIdx = np.argmax(acompScores[:,2])
+    acompScores = acompScores[acompScoresIdx]
+    icompScores = iComps_g[iComps_g[:,0] == probeIds_g[pidx]]
+    #find the number of comparisons greater than the match comparison
+    tmprank = len(icompScores[icompScores[:,2] > acompScores[2]]) 
+
+    return tmprank
+
 def compute_ranks(aComps,iComps, idtoimgMappings,ncores):
     idtoimgMappings = dict(idtoimgMappings)
-    aComps = np.asarray(aComps,dtype=float)
-    iComps = np.asarray(iComps,dtype=float)
-    galleryIds = np.unique(np.concatenate((aComps[:,1],iComps[:,1])))
-    probeIds = np.unique(np.concatenate((aComps[:,0],iComps[:,0])))
+    global aComps_g
+    global iComps_g
+    global probeIds_g
+    aComps_g = np.asarray(aComps,dtype=float)
+    iComps_g = np.asarray(iComps,dtype=float)
+    galleryIds = np.unique(np.concatenate((aComps_g[:,1],iComps_g[:,1])))
+    probeIds_g = np.unique(np.concatenate((aComps_g[:,0],iComps_g[:,0])))
     #probeIds = list(probeIds)
 
-    #print galleryIds.shape, probeIds.shape 
+    pool = mp.Pool(ncores)
+    results = pool.map(getRank,range(0,probeIds_g.shape[0]))
     ranks = np.zeros(galleryIds.shape[0])
-    for pidx in range(0,probeIds.shape[0]):
-        if pidx >= 0:
-            acompScores = aComps[aComps[:,0] == probeIds[pidx]]
-            acompScoresIdx = np.argmax(acompScores[:,2])
-            acompScores = acompScores[acompScoresIdx]
-            icompScores = iComps[iComps[:,0] == probeIds[pidx]]
-            #find the number of comparisons greater than the match comparison
-            tmprank = len(icompScores[icompScores[:,2] > acompScores[2]])  
-            ranks[tmprank] += 1
-    ranks = np.cumsum(ranks)/float(probeIds.shape[0])
+    for eachrow in results:
+        ranks[eachrow] += 1
+    ranks = np.cumsum(ranks)/float(probeIds_g.shape[0])   
+
+    #print galleryIds.shape, probeIds.shape 
+    #ranks = np.zeros(galleryIds.shape[0])
+    #for pidx in range(0,probeIds.shape[0]):
+    #    if pidx >= 0:
+    #        acompScores = aComps[aComps[:,0] == probeIds_g[pidx]]
+    #        acompScoresIdx = np.argmax(acompScores[:,2])
+    #        acompScores = acompScores[acompScoresIdx]
+    #        icompScores = iComps[iComps[:,0] == probeIds_g[pidx]]
+    #        #find the number of comparisons greater than the match comparison
+    #        tmprank = len(icompScores[icompScores[:,2] > acompScores[2]])  
+    #        ranks[tmprank] += 1
+    #ranks = np.cumsum(ranks)/float(probeIds.shape[0])
     
     return ranks
             
@@ -230,7 +255,7 @@ def parserArguments():
     parser.add_argument('-n','--numCores',dest='numCores',type=int,default=8)
     parser.add_argument('-a', '--algolist', nargs='*', dest='algorithms', default=['UMD','STR','RankOne_D'],help='list all the algorithms')
     parser.add_argument('-d', '--datasetnames', nargs='*', dest='datasetnames', default=['Age_1213_17181920','Age_18_1819'],help='list all the datasets')
-    parser.add_argument('-p', '--plots', nargs='*', dest='plotsofinterest', default=['cmcPlot','rocPlot','densityPlot'],help='list all the plots to plot')
+    parser.add_argument('-p', '--plots', nargs='*', dest='plotsofinterest', default=['cmcPlot','rocPlot', 'densityPlot'],help='list all the plots to plot')
     parser.add_argument('-e', '--expts', nargs='*', dest='expts',default=['expt1'],help='list all the experiments')
     parser.add_argument('-m', '--manual', action='store_true', dest='manualFD',help='If set to True it will use the manual face detection results and not the inbuilt one')
     parser.add_argument('rootDir', help='specify the root directory to store the results')
