@@ -26,8 +26,9 @@ def plot(title, total_ranks, acc1, l1, acc2, l2, acc3, l3):
     plt.rcParams['font.size'] = 12
 
     plt.grid(True, zorder=0, linestyle='dashed')
+
     if title is not None:
-        plt.title(title)
+        plt.title(title, y=1.08)
 
     if total_ranks is None:
         total_ranks = np.max(acc1)

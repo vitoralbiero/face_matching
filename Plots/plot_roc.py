@@ -10,6 +10,9 @@ from os import path, makedirs
 def find_nearest(array, value):
     array = np.asarray(array)
     idx = (np.abs(array - value)).argmin()
+    idx = np.where(array == array[idx])[0][-1]
+
+    # idx = idx[idx.shape]
 
     return idx
 
@@ -45,11 +48,11 @@ def compute_roc(authentic_file, impostor_file, ignore_aut=-1, ignore_imp=-1):
 
     print(y.shape)
 
-    return metrics.roc_curve(y, scores, drop_intermediate=True)
+    return metrics.roc_curve(y, scores, drop_intermediate=False)
 
 
 def plot(title, fpr1, tpr1, thr1, l1, fpr2, tpr2, thr2, l2,
-         fpr3, tpr3, thr3, l3):
+         fpr3, tpr3, thr3, l3, fpr4, tpr4, thr4, l4, ylim):
     label_kwargs1 = {}
     label_kwargs1['bbox'] = dict(
         boxstyle='round,pad=0.5', fc='C1', alpha=0.5,
@@ -65,13 +68,18 @@ def plot(title, fpr1, tpr1, thr1, l1, fpr2, tpr2, thr2, l2,
         boxstyle='round,pad=0.5', fc='C3', alpha=0.5,
     )
 
-    plt.rcParams["figure.figsize"] = [6, 5]
+    label_kwargs4 = {}
+    label_kwargs4['bbox'] = dict(
+        boxstyle='round,pad=0.5', fc='C4', alpha=0.5,
+    )
+
+    plt.rcParams["figure.figsize"] = [6, 4.5]
     plt.rcParams['font.size'] = 12
 
     plt.grid(True, zorder=0, linestyle='dashed')
 
-    if title is not None and title != '' and title != ' ':
-        plt.title(title)
+    # if title is not None and title != '' and title != ' ':
+    #   plt.title(title)
 
     plt.gca().set_xscale('log')
 
@@ -104,17 +112,27 @@ def plot(title, fpr1, tpr1, thr1, l1, fpr2, tpr2, thr2, l2,
         plt.plot(fpr3, tpr3, 'C3', label=l3)
         # + ' - AUC ({:0.5f})'.format(auc3_per))
 
+    if l4 is not None:
+        # auc3 = metrics.auc(fpr3[(fpr3 >= begin_x) & (fpr3 <= end_x)], tpr3[(fpr3 >= begin_x) & (fpr3 <= end_x)])
+        # auc3_per = auc3 / range_f
+        # print(auc3_per)
+
+        plt.plot(fpr4, tpr4, 'C4', label=l4)
+
     thrs = [0.00001, 0.0001, 0.001, 0.01, 0.1]
 
     if l2 is not None:
         if l3 is not None:
-            save_tprs = np.zeros(shape=(4, len(thrs)))
+            if l4 is not None:
+                save_tprs = np.zeros(shape=(5, len(thrs)))
+            else:
+                save_tprs = np.zeros(shape=(4, len(thrs)))
         else:
             save_tprs = np.zeros(shape=(3, len(thrs)))
     else:
         save_tprs = np.zeros(shape=(2, len(thrs)))
 
-    offset = 2
+    offset = 1
 
     invert = 1
 
@@ -148,6 +166,14 @@ def plot(title, fpr1, tpr1, thr1, l1, fpr2, tpr2, thr2, l2,
             y3 = tpr3[k]
 
             save_tprs[3, i] = y3
+
+        if l4 is not None:
+            k = find_nearest(fpr4, thrs[i])
+            t4 = str(np.round(thr4[k], 2) * invert)
+            x4 = fpr4[k + offset]
+            y4 = tpr4[k]
+
+            save_tprs[4, i] = y4
 
         # y_pos = -55
 
@@ -185,9 +211,27 @@ def plot(title, fpr1, tpr1, thr1, l1, fpr2, tpr2, thr2, l2,
                          arrowprops=dict(arrowstyle="->"), fontsize=10,
                          **label_kwargs3)
 
+        if l4 is not None:
+            y_pos = -30
+
+            if (abs(y2 - y3) < 0.02) and (abs(y3 - y4) < 0.05):
+                y_pos -= 60
+            elif (abs(y3 - y4) < 0.02):
+                y_pos -= 30
+
+            # if i == 0.00001:
+            #    y_pos = -25
+            # else:
+            #    y_pos = -40
+
+            plt.annotate(t4, (x4, y4), xycoords='data',
+                         xytext=(15, y_pos), textcoords='offset points',
+                         arrowprops=dict(arrowstyle="->"), fontsize=10,
+                         **label_kwargs4)
+
     plt.legend(loc='lower right', fontsize=12)
     plt.xlim([begin_x, end_x])
-    plt.ylim([0.7, 1])
+    plt.ylim([ylim, 1])
     # plt.ylim([0, 1])
     plt.ylabel('True Positive Rate')
     plt.xlabel('False Match Rate')
@@ -208,14 +252,19 @@ if __name__ == '__main__':
     parser.add_argument('-authentic3', '-a3', help='Authentic scores 3.')
     parser.add_argument('-impostor3', '-i3', help='Impostor scores 3.')
     parser.add_argument('-label3', '-l3', help='Label 3.')
+    parser.add_argument('-authentic4', '-a4', help='Authentic scores 4.')
+    parser.add_argument('-impostor4', '-i4', help='Impostor scores 4.')
+    parser.add_argument('-label4', '-l4', help='Label 4.')
     parser.add_argument('-title', '-t', help='Plot title.')
     parser.add_argument('-dest', '-d', help='Folder to save the plot.')
     parser.add_argument('-name', '-n', help='Plot name (without extension).')
+    parser.add_argument('--ylim', default=0.7)
 
     args = parser.parse_args()
 
     fpr2, tpr2, thr2 = (None, None, None)
     fpr3, tpr3, thr3 = (None, None, None)
+    fpr4, tpr4, thr4 = (None, None, None)
 
     fpr1, tpr1, thr1 = compute_roc(args.authentic1, args.impostor1)
 
@@ -225,8 +274,12 @@ if __name__ == '__main__':
     if args.authentic3 is not None:
         fpr3, tpr3, thr3 = compute_roc(args.authentic3, args.impostor3)
 
+    if args.authentic4 is not None:
+        fpr4, tpr4, thr4 = compute_roc(args.authentic4, args.impostor4)
+
     save_tprs = plot(args.title, fpr1, tpr1, thr1, args.label1,
-                     fpr2, tpr2, thr2, args.label2, fpr3, tpr3, thr3, args.label3)
+                     fpr2, tpr2, thr2, args.label2, fpr3, tpr3, thr3, args.label3,
+                     fpr4, tpr4, thr4, args.label4, float(args.ylim))
 
     if not path.exists(args.dest):
         makedirs(args.dest)
@@ -236,4 +289,4 @@ if __name__ == '__main__':
 
     np.savetxt(tprs_path, save_tprs, delimiter=' ', fmt='%s')
 
-    plt.savefig(plot_path, dpi=300)
+    plt.savefig(plot_path, dpi=150)

@@ -72,7 +72,7 @@ def plot(title, fpr1, tpr1, thr1, fnr1, l1, fpr2, tpr2, thr2, fnr2, l2,
     plt.grid(True, zorder=0, linestyle='dashed')
 
     # if title is not None:
-    #    plt.title(title)
+    #    plt.title(title, y=1.08)
 
     plt.gca().set_yscale('log')
 
@@ -91,17 +91,17 @@ def plot(title, fpr1, tpr1, thr1, fnr1, l1, fpr2, tpr2, thr2, fnr2, l2,
     labels = []
 
     colors.append('C1')
-    k = int(np.where(np.round(fpr1, 3) == np.round(fnr1, 3))[0][0])
+    k = int(np.where(np.round(fpr1, 4) == np.round(fnr1, 4))[0][0])
     labels.append('EER: {}'.format(np.round(fpr1[k], 4)))
 
     if l2 is not None:
         colors.append('C0')
-        k = int(np.where(np.round(fpr2, 3) == np.round(fnr2, 3))[0][0])
+        k = int(np.where(np.round(fpr2, 4) == np.round(fnr2, 4))[0][0])
         labels.append('EER: {}'.format(np.round(fpr2[k], 4)))
 
     if l3 is not None:
         colors.append('C3')
-        k = int(np.where(np.round(fpr3, 3) == np.round(fnr3, 3))[0][0])
+        k = int(np.where(np.round(fpr3, 4) == np.round(fnr3, 4))[0][0])
         labels.append('EER: {}'.format(np.round(fpr3[k], 4)))
 
     if l3 is not None:
@@ -172,4 +172,4 @@ if __name__ == '__main__':
 
     plot_path = path.join(args.dest, args.name + '.png')
 
-    plt.savefig(plot_path, dpi=300)
+    plt.savefig(plot_path, dpi=150)

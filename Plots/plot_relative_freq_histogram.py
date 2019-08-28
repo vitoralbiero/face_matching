@@ -57,7 +57,7 @@ def plot_histogram(authentic_file1, impostor_file1, l1,
 
     # bins = np.linspace(0, 1.0, 100)
 
-    plt.rcParams["figure.figsize"] = [6, 5]
+    plt.rcParams["figure.figsize"] = [6, 4.5]
     plt.rcParams['font.size'] = 12
 
     # color_a = 'g'
@@ -68,7 +68,7 @@ def plot_histogram(authentic_file1, impostor_file1, l1,
     color_i = 'C1'
 
     # if title is not None:
-    #    plt.title(title)
+    #     plt.title(title, y=1.16)
 
     plt.hist(authentic_score1, bins='auto', histtype='step', density=True,
              label=l1 + ' Authentic', color=color_a, linewidth=1.5)
@@ -191,4 +191,4 @@ if __name__ == '__main__':
 
     plot_path = path.join(args.dest, args.name + '.png')
 
-    plt.savefig(plot_path, dpi=300)
+    plt.savefig(plot_path, dpi=150)
