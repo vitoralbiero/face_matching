@@ -40,6 +40,8 @@ Y. Guo, L. Zhang, Y. Hu, X. He, and J. Gao. Ms-celeb-1m: A dataset and benchmark
 
 X. Tan and B. Triggs. Enhanced local texture feature sets for face recognition under difficult lighting conditions. IEEE Transactions on Image Processing, 2010.
 
+Deng, Jiankang, et al. Arcface: Additive angular margin loss for deep face recognition. IEEE Conference on Computer Vision and Pattern Recognition. 2019.
+
 
 
 
