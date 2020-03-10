@@ -8,6 +8,7 @@ from os import path, makedirs
 def find_nearest(array, value):
     array = np.asarray(array)
     idx = (np.abs(array - value)).argmin()
+    idx = np.where(array == array[idx])[0][-1]
 
     return idx
 

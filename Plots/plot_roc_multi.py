@@ -80,7 +80,7 @@ def plot(title, alg1_path, label1, alg2_path, label2, ylim):
         authentic_path = path.join(alg1_path, subset, 'all_authentic.txt')
         impostor_path = path.join(alg1_path, subset, 'all_impostor.txt')
 
-        subset_label = subset[8:] + ' ' + label1
+        subset_label = subset[8:] + ' - ' + label1
 
         fpr, tpr, thr = compute_roc(authentic_path, impostor_path)
         plt.plot(fpr, tpr, colors[i], label=subset_label, linestyle='dashed')
@@ -92,7 +92,7 @@ def plot(title, alg1_path, label1, alg2_path, label2, ylim):
         authentic_path = path.join(alg2_path, subset, 'all_authentic.txt')
         impostor_path = path.join(alg2_path, subset, 'all_impostor.txt')
 
-        subset_label = subset[8:] + ' ' + label2
+        subset_label = subset[8:] + ' - ' + label2
 
         fpr, tpr, thr = compute_roc(authentic_path, impostor_path)
         plt.plot(fpr, tpr, colors[i], label=subset_label)
@@ -103,19 +103,19 @@ def plot(title, alg1_path, label1, alg2_path, label2, ylim):
     plt.xlim([begin_x, end_x])
     plt.ylim([ylim, 1])
     # plt.ylim([0, 1])
-    plt.ylabel('True Positive Rate')
-    plt.xlabel('False Match Rate')
+    plt.ylabel('True Acceptance Rate')
+    plt.xlabel('False Acceptance Rate')
 
-    plt.tight_layout(pad=0)
+    plt.tight_layout(pad=0.2)
 
-    handles = []
-    for c in colors:
-        handles.append(Rectangle((0, 0), 1, 1, color=c, fill=True))
+    # handles = []
+    # for c in colors:
+    #     handles.append(Rectangle((0, 0), 1, 1, color=c, fill=True))
 
-    handles = np.asarray(handles)
+    # handles = np.asarray(handles)
 
-    plt.legend(handles, labels, loc="upper left", fontsize=10)
-    plt.gca().add_artist(legend1)
+    # plt.legend(handles, labels, loc="upper left", fontsize=10)
+    # plt.gca().add_artist(legend1)
 
 
 if __name__ == '__main__':

@@ -71,23 +71,23 @@ def plot_histogram(authentic_file1, impostor_file1, l1,
     #     plt.title(title, y=1.16)
 
     plt.hist(authentic_score1, bins='auto', histtype='step', density=True,
-             label=l1 + ' Authentic', color=color_a, linewidth=1.5)
+             label=l1 + ' Authentic', color='b', linewidth=1.5)
     plt.hist(impostor_score1, bins='auto', histtype='step', density=True,
-             label=l1 + ' Impostor', color=color_i, linestyle='dashed',
+             label=l1 + ' Impostor', color='b', linestyle='dashed',
              linewidth=1.5)
 
     if l2 is not None:
         plt.hist(authentic_score2, bins='auto', histtype='step', density=True,
-                 label=l2 + ' Authentic', color='C0', linewidth=1.5)
+                 label=l2 + ' Authentic', color='r', linewidth=1.5)
         plt.hist(impostor_score2, bins='auto', histtype='step', density=True,
-                 label=l2 + ' Impostor', color='C0', linestyle='dashed',
+                 label=l2 + ' Impostor', color='r', linestyle='dashed',
                  linewidth=1.5)
 
     if l3 is not None:
         plt.hist(authentic_score3, bins='auto', histtype='step', density=True,
-                 label=l3 + ' Authentic', color='C3', linewidth=1.5)
+                 label=l3 + ' Authentic', color='g', linewidth=1.5)
         plt.hist(impostor_score3, bins='auto', histtype='step', density=True,
-                 label=l3 + ' Impostor', color='C3', linestyle='dashed',
+                 label=l3 + ' Impostor', color='g', linestyle='dashed',
                  linewidth=1.5)
 
     if l4 is not None:
@@ -105,13 +105,13 @@ def plot_histogram(authentic_file1, impostor_file1, l1,
         ncol = 1
 
     legend1 = plt.legend(bbox_to_anchor=(0, 1.02, 1, 0.2), loc="lower left",
-                         mode="expand", borderaxespad=0, ncol=ncol, fontsize=12, edgecolor='black', handletextpad=0.3)
+                         mode="expand", borderaxespad=0, ncol=ncol, fontsize=10, edgecolor='black', handletextpad=0.3)
 
     # plt.gca().invert_xaxis()
     plt.ylabel('Relative Frequency')
     plt.xlabel('Match Scores')
 
-    plt.tight_layout(pad=0)
+    plt.tight_layout(pad=0.2)
 
     d_prime1 = (abs(np.mean(authentic_score1) - np.mean(impostor_score1)) /
                 np.sqrt(0.5 * (np.var(authentic_score1) + np.var(impostor_score1))))
@@ -120,13 +120,13 @@ def plot_histogram(authentic_file1, impostor_file1, l1,
     colors = []
     labels = []
 
-    colors.append(color_a)
+    colors.append('b')
     labels.append("d-prime: {}".format(np.round(d_prime1, 3)))
 
     if l2 is not None:
         d_prime2 = (abs(np.mean(authentic_score2) - np.mean(impostor_score2)) /
                     np.sqrt(0.5 * (np.var(authentic_score2) + np.var(impostor_score2))))
-        colors.append('C0')
+        colors.append('r')
         labels.append("d-prime: {}".format(np.round(d_prime2, 3)))
 
         print('d-prime for {} is: {} '.format(l2, d_prime2))

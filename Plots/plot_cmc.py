@@ -55,7 +55,7 @@ def plot(title, total_ranks, acc1, l1, acc2, l2, acc3, l3):
     plt.ylabel('Accuracy')
     plt.xlabel('Rank')
 
-    plt.tight_layout(pad=0)
+    plt.tight_layout(pad=0.2)
 
     return plt
 

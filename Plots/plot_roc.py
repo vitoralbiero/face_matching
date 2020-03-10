@@ -24,9 +24,9 @@ def compute_roc(authentic_file, impostor_file, ignore_aut=-1, ignore_imp=-1):
         authentic_score = authentic_score[authentic_score[:, 0].astype(int) < ignore_aut, 1].astype(float)
 
     elif np.ndim(authentic_score) == 1:
-        authentic_score = authentic_score.astype(float)
+        authentic_score = authentic_score.astype(float) * 100
     else:
-        authentic_score = authentic_score[:, 2].astype(float)
+        authentic_score = authentic_score[:, 2].astype(float) * 100
     authentic_y = np.ones(authentic_score.shape[0])
 
     impostor_score = np.loadtxt(impostor_file, dtype=np.str)
@@ -35,9 +35,9 @@ def compute_roc(authentic_file, impostor_file, ignore_aut=-1, ignore_imp=-1):
         impostor_score = impostor_score[impostor_score[:, 0].astype(int) < ignore_imp, 1].astype(float)
 
     elif np.ndim(impostor_score) == 1:
-        impostor_score = impostor_score.astype(float)
+        impostor_score = impostor_score.astype(float) * 100
     else:
-        impostor_score = impostor_score[:, 2].astype(float)
+        impostor_score = impostor_score[:, 2].astype(float) * 100
     impostor_y = np.zeros(impostor_score.shape[0])
 
     y = np.concatenate([authentic_y, impostor_y])
@@ -73,7 +73,7 @@ def plot(title, fpr1, tpr1, thr1, l1, fpr2, tpr2, thr2, l2,
         boxstyle='round,pad=0.5', fc='C4', alpha=0.5,
     )
 
-    plt.rcParams["figure.figsize"] = [6, 4.5]
+    plt.rcParams["figure.figsize"] = [6, 5]
     plt.rcParams['font.size'] = 12
 
     plt.grid(True, zorder=0, linestyle='dashed')
@@ -236,7 +236,7 @@ def plot(title, fpr1, tpr1, thr1, l1, fpr2, tpr2, thr2, l2,
     plt.ylabel('True Positive Rate')
     plt.xlabel('False Match Rate')
 
-    plt.tight_layout(pad=0)
+    plt.tight_layout(pad=0.2)
 
     return save_tprs
 

@@ -11,16 +11,16 @@ from matplotlib.patches import Rectangle
 def compute_roc(authentic_file, impostor_file):
     authentic = np.loadtxt(authentic_file, dtype=np.str)
     if np.ndim(authentic) == 1:
-        authentic_score = authentic.astype(float)
+        authentic_score = authentic.astype(float) * 100
     else:
-        authentic_score = authentic[:, 2].astype(float)
+        authentic_score = authentic[:, 2].astype(float) * 100
     authentic_y = np.ones(authentic.shape[0])
 
     impostor = np.loadtxt(impostor_file, dtype=np.str)
     if np.ndim(authentic) == 1:
-        impostor_score = impostor.astype(float)
+        impostor_score = impostor.astype(float) * 100
     else:
-        impostor_score = impostor[:, 2].astype(float)
+        impostor_score = impostor[:, 2].astype(float) * 100
     impostor_y = np.zeros(impostor.shape[0])
 
     # reverse the scores in case of distance instead of similarity
@@ -63,8 +63,8 @@ def plot(title, fpr1, tpr1, thr1, fnr1, l1, fpr2, tpr2, thr2, fnr2, l2,
 
     # FMR =  FPR (False Match Rate)
     # FNMR = FNR (False Non-Match Rate)
-    low_range1 = 1e-5
-    low_range2 = 1e-3
+    low_range1 = 1e-6
+    low_range2 = 1e-4
 
     plt.rcParams["figure.figsize"] = [6, 5]
     plt.rcParams['font.size'] = 12
@@ -87,25 +87,25 @@ def plot(title, fpr1, tpr1, thr1, fnr1, l1, fpr2, tpr2, thr2, fnr2, l2,
         plt.plot(thr3[fpr3 > low_range1], fpr3[fpr3 > low_range1], 'C3--', label=l3 + ' FMR')
         plt.plot(thr3[fnr3 > low_range2], fnr3[fnr3 > low_range2], 'C3', label=l3 + ' FNMR')
 
-    colors = []
-    labels = []
+    # colors = []
+    # labels = []
 
-    colors.append('C1')
-    k = int(np.where(np.round(fpr1, 4) == np.round(fnr1, 4))[0][0])
-    labels.append('EER: {}'.format(np.round(fpr1[k], 4)))
+    # colors.append('C1')
+    # k = int(np.where(np.round(fpr1, 4) == np.round(fnr1, 4))[0][0])
+    # labels.append('EER: {}'.format(np.round(fpr1[k], 4)))
 
-    if l2 is not None:
-        colors.append('C0')
-        k = int(np.where(np.round(fpr2, 4) == np.round(fnr2, 4))[0][0])
-        labels.append('EER: {}'.format(np.round(fpr2[k], 4)))
+    # if l2 is not None:
+    #     colors.append('C0')
+    #     k = int(np.where(np.round(fpr2, 4) == np.round(fnr2, 4))[0][0])
+    #     labels.append('EER: {}'.format(np.round(fpr2[k], 4)))
+
+    # if l3 is not None:
+    #     colors.append('C3')
+    #     k = int(np.where(np.round(fpr3, 4) == np.round(fnr3, 4))[0][0])
+    #     labels.append('EER: {}'.format(np.round(fpr3[k], 4)))
 
     if l3 is not None:
-        colors.append('C3')
-        k = int(np.where(np.round(fpr3, 4) == np.round(fnr3, 4))[0][0])
-        labels.append('EER: {}'.format(np.round(fpr3[k], 4)))
-
-    if l3 is not None:
-        ncol = 3
+        ncol = 2
     elif l2 is not None:
         ncol = 2
     else:
@@ -120,17 +120,17 @@ def plot(title, fpr1, tpr1, thr1, fnr1, l1, fpr2, tpr2, thr2, fnr2, l2,
 
     plt.tight_layout(pad=0)
 
-    colors = np.asarray(colors)
-    labels = np.asarray(labels)
+    # colors = np.asarray(colors)
+    # labels = np.asarray(labels)
 
-    handles = []
-    for c in colors:
-        handles.append(Rectangle((0, 0), 1, 1, color=c, fill=True))
+    # handles = []
+    # for c in colors:
+    #     handles.append(Rectangle((0, 0), 1, 1, color=c, fill=True))
 
-    handles = np.asarray(handles)
+    # handles = np.asarray(handles)
 
-    plt.legend(handles, labels, loc="lower left", fontsize=10)
-    plt.gca().add_artist(legend1)
+    # plt.legend(handles, labels, loc="lower left", fontsize=10)
+    # plt.gca().add_artist(legend1)
 
     return plt
 
