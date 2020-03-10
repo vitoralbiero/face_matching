@@ -31,10 +31,6 @@ def extract_features(model, source, destination, weights=None):
            and not image_path.lower().endswith('.bmp'):
             continue
 
-        img = cv2.imread(image_path)
-        img = model.get_input(img)
-        features = model.get_feature(img)
-
         dest_path = destination
 
         if full_path:
@@ -46,6 +42,16 @@ def extract_features(model, source, destination, weights=None):
                 makedirs(dest_path)
 
         features_name = path.join(dest_path, image_name[:-3] + 'npy')
+
+        # if path.isfile(features_name):
+        #    print('Skipping...')
+        #    continue
+
+        # print(image_path)
+
+        img = cv2.imread(image_path)
+        img = model.get_input(img)
+        features = model.get_feature(img)
 
         np.save(features_name, features)
 

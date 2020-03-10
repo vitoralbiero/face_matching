@@ -6,6 +6,7 @@ from os import path, listdir, makedirs
 import cv2
 from tantriggs_preprocessing import TanTriggsPreprocessing
 import PIL
+from PIL import Image
 
 
 def extract_hist(img):
@@ -78,7 +79,7 @@ def extract_features(source, destination):
             image_path = image_name
             image_name = path.split(image_name)[1]
 
-        img = PIL.Image.open(image_path)
+        img = Image.open(image_path)
         img = img.convert("L")
         img = img.resize((108, 108), PIL.Image.ANTIALIAS)
         img = np.array(img, dtype=np.uint8)

@@ -27,9 +27,35 @@ def create_model(model_name):
     return Model(model.input, out)
 
 
-def extract_features(model_name, source, destination, weights=None):
+def preprocess_input(x, data_format=None, version=1):
+    x_temp = np.copy(x)
+
+    if version == 1:
+        x_temp = x_temp[..., ::-1]
+        x_temp[..., 0] -= 93.5940
+        x_temp[..., 1] -= 104.7624
+        x_temp[..., 2] -= 129.1863
+
+    elif version == 2:
+        x_temp = x_temp[..., ::-1]
+        x_temp[..., 0] -= 91.4953
+        x_temp[..., 1] -= 103.8827
+        x_temp[..., 2] -= 131.0912
+
+    elif version == 3:
+        x_temp = x_temp[..., ::-1]
+        x_temp -= 127.5
+
+    else:
+        raise NotImplementedError
+
+    return x_temp
+
+
+def extract_features(model_name, source, destination, weights):
     model = create_model(model_name)
     if weights is not None:
+        print('Loading weights from {}'.format(weights))
         model.load_weights(weights, by_name=True)
 
     if path.isfile(source):
@@ -45,6 +71,8 @@ def extract_features(model_name, source, destination, weights=None):
         version = 2
 
     for image_name in source_list:
+        print(image_name)
+
         if not full_path:
             image_path = path.join(source, image_name)
         else:
@@ -58,7 +86,7 @@ def extract_features(model_name, source, destination, weights=None):
         img = image.load_img(image_path, target_size=(224, 224))
         img = image.img_to_array(img)
         img = np.expand_dims(img, axis=0)
-        img = utils.preprocess_input(img, version=version)
+        img = preprocess_input(img, version=version)
 
         features = model.predict(img)
 
@@ -89,4 +117,4 @@ if __name__ == '__main__':
     if not path.exists(args.dest):
         makedirs(args.dest)
 
-    extract_features(args.net, args.source, args.dest)
+    extract_features(args.net, args.source, args.dest, args.weights)
