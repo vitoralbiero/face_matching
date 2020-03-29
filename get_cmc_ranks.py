@@ -90,7 +90,10 @@ def get_ranks(authentic_file, impostor_file, label_file_probe, label_file_galler
                               round(best_authentic - best_impostor, 6)])
 
     best_auth_imp = np.array(best_auth_imp)
-    best_auth_imp = best_auth_imp[best_auth_imp[:, 3].argsort()]
+    if distance:
+        best_auth_imp = best_auth_imp[best_auth_imp[:, 3].argsort()][::-1]
+    else:
+        best_auth_imp = best_auth_imp[best_auth_imp[:, 3].argsort()]
 
     np.savetxt(best_auth_imp_save, best_auth_imp, delimiter=' ', fmt='%s')
     np.savetxt(ranks_save, ranks, delimiter=' ', fmt='%s')
