@@ -64,20 +64,24 @@ def get_ranks(authentic_file, impostor_file, label_file_probe, label_file_galler
 
         if distance:
             rank = len(impostor_scores[impostor_scores < best_authentic])
-            best_impostor = np.min(impostor_scores)
+            if len(impostor_scores) > 1:
+                best_impostor = np.min(impostor_scores)
         else:
             rank = len(impostor_scores[impostor_scores > best_authentic])
-            best_impostor = np.max(impostor_scores)
+            if len(impostor_scores) > 1:
+                best_impostor = np.max(impostor_scores)
 
         if label_gallery is None:
             impostor_scores = impostor[impostor[:, 1] == label_idx][:, 2].astype(float)
 
             if distance:
                 rank += len(impostor_scores[impostor_scores < best_authentic])
-                best_impostor = min(best_impostor, np.min(impostor_scores))
+                if len(impostor_scores) > 1:
+                    best_impostor = min(best_impostor, np.min(impostor_scores))
             else:
                 rank += len(impostor_scores[impostor_scores > best_authentic])
-                best_impostor = max(best_impostor, np.max(impostor_scores))
+                if len(impostor_scores) > 1:
+                    best_impostor = max(best_impostor, np.max(impostor_scores))
 
         # check if label has an impostor score, otherwise skip
         if best_impostor == -float('Inf') or best_impostor == float('Inf'):
