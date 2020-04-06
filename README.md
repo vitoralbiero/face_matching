@@ -1,4 +1,3 @@
-# face_matching
 # Face Matching Repository
 
 ## Extract features with any of the following:
