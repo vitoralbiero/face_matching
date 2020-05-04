@@ -16,13 +16,15 @@ class Matcher():
         self.probe, self.probe_ids, self.probe_labels = self.get_features(probe_file)
 
         if gallery_path is not None:
+            print(f'Matching {probe_path} to {gallery_path}')
             gallery_file = np.sort(np.loadtxt(args.gallery, dtype=np.str))
             # if matching different files, load gallery features, ids and labels
-            self.probe_equal_gallery = True
+            self.probe_equal_gallery = False
             self.gallery, self.gallery_ids, self.gallery_labels = self.get_features(gallery_file)
         else:
+            print(f'Matching {probe_path} to {probe_path}')
             # if matching to the same file, just create a simbolic link to save memory
-            self.probe_equal_gallery = False
+            self.probe_equal_gallery = True
             self.gallery = self.probe
             self.gallery_ids = self.probe_ids
             self.gallery_labels = self.probe_labels
@@ -39,6 +41,23 @@ class Matcher():
             if gallery_path is None:
                 # remove duplicate matches if matching probe to probe
                 self.authentic_impostor[i, 0:min(i + 1, len(self.gallery))] = -1
+
+            # Remove same day matches from authentic pairs
+            if self.dataset_name == 'ND_GENDERS_V3':
+                if gallery_path is None:
+                    range_check = range(i + 1, len(self.gallery))
+                else:
+                    range_check = range(0, len(self.gallery))
+
+                for j in range_check:
+                    if self.probe_ids[i] != self.gallery_ids[j]:
+                        continue
+
+                    day_a = path.split(self.probe_labels[i])[1].split('_')[4]
+                    day_b = path.split(self.gallery_labels[j])[1].split('_')[4]
+
+                    if day_a == day_b:
+                        self.authentic_impostor[i, j] = -1
 
         self.matches = None
 
@@ -95,7 +114,7 @@ class Matcher():
         np.save(path.join(output, f'{group}_impostor.npy'), self.get_indices_score(0))
         np.savetxt(path.join(output, f'{group}_labels.txt'),
                    self.create_label_indices(self.probe_labels), delimiter=' ', fmt='%s')
-        if self.probe_equal_gallery:
+        if not self.probe_equal_gallery:
             np.savetxt(path.join(output, f'{group}_gallery_labels.txt'),
                        self.create_label_indices(self.gallery_labels), delimiter=' ', fmt='%s')
 
