@@ -71,7 +71,7 @@ class Matcher():
         elif self.dataset_name == 'CHIYA_VAL':
             subject_id = feature_label[1:-4]
 
-        elif self.dataset_name == 'PUBLIC_IVS':
+        elif self.dataset_name == 'PUBLIC_IVS' or self.dataset_name == 'VGGFACE2':
             subject_id = path.split(feature_label)[0]
 
         elif self.id_length > 0:
