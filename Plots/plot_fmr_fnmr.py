@@ -6,21 +6,53 @@ import argparse
 import matplotlib.pyplot as plt
 from os import path, makedirs
 from matplotlib.patches import Rectangle
+from tqdm import tqdm
+
+
+def find_nearest(array, value):
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    idx = np.where(array == array[idx])[0][-1]
+
+    return idx
 
 
 def compute_roc(authentic_file, impostor_file):
-    authentic = np.loadtxt(authentic_file, dtype=np.str)
-    if np.ndim(authentic) == 1:
-        authentic_score = authentic.astype(float) * 100
+    print(f'Loading authentic from {authentic_file}')
+    if authentic_file[-4:] == '.txt':
+        authentic = np.loadtxt(authentic_file, dtype=np.str)
+        print(f'Converting authentic to npy')
+        np.save(authentic_file[:-4] + '.npy', authentic.astype(float))
     else:
-        authentic_score = authentic[:, 2].astype(float) * 100
+        authentic = np.load(authentic_file)
+
+    if np.ndim(authentic) == 1:
+        authentic_score = authentic.astype(float)
+    elif np.ndim(authentic) == 2:
+        authentic_score = authentic[:, 2].astype(float)
+    else:
+        authentic_score = authentic[:, 2].astype(float)
+
+    authentic_score = authentic_score
     authentic_y = np.ones(authentic.shape[0])
 
-    impostor = np.loadtxt(impostor_file, dtype=np.str)
-    if np.ndim(authentic) == 1:
-        impostor_score = impostor.astype(float) * 100
+    print(f'Loading impostor from {impostor_file}')
+    if impostor_file[-4:] == '.txt':
+        impostor = np.loadtxt(impostor_file, dtype=np.str)
+        print(f'Converting impostor to npy')
+        np.save(impostor_file[:-4] + '.npy', impostor.astype(float))
     else:
-        impostor_score = impostor[:, 2].astype(float) * 100
+        impostor = np.load(impostor_file)
+
+    if np.ndim(impostor) == 1:
+        impostor_score = impostor.astype(float)
+    elif np.ndim(impostor) == 2:
+        impostor_score = impostor[:, 2].astype(float)
+    else:
+        impostor_score = impostor[:, 2].astype(float)
+
+    impostor_score = impostor_score
+
     impostor_y = np.zeros(impostor.shape[0])
 
     # reverse the scores in case of distance instead of similarity
@@ -34,12 +66,14 @@ def compute_roc(authentic_file, impostor_file):
 
     fpr, tpr, thr = metrics.roc_curve(y, scores, drop_intermediate=False)
 
-    fnr = np.zeros_like(fpr)
-    total_authentic = authentic_y.shape[0]
+    # fnr = np.zeros_like(fpr)
+    # total_authentic = authentic_y.shape[0]
 
-    for i in range(thr.shape[0]):
-        fn = authentic_score[authentic_score < thr[i]].shape[0]
-        fnr[i] = fn / total_authentic
+    # for i in tqdm(range(thr.shape[0])):
+    #     fn = authentic_score[authentic_score < thr[i]].shape[0]
+    #     fnr[i] = fn / total_authentic
+
+    fnr = 1 - tpr
 
     return fpr, tpr, thr, fnr
 
@@ -162,6 +196,22 @@ if __name__ == '__main__':
 
     if args.authentic3 is not None:
         fpr3, tpr3, thr3, fnr3 = compute_roc(args.authentic3, args.impostor3)
+
+    k = find_nearest(fpr1, 0.00001)
+    t1 = np.round(thr1[k], 10)
+    print(t1)
+    y1 = np.round(fnr1[k], 10)
+    print(f'{args.label1} FNMR at 1-in-100,000 FMR: {y1 * 100000}')
+
+    k = find_nearest(thr2, t1)
+    y2 = np.round(fnr2[k], 10)
+    x2 = np.round(fpr2[k], 10)
+    print(f'{args.label2} FNMR at 1-in-100,000 {args.label1} FMR: {y2 * 100000}')
+    print(f'{args.label2} FMR at 1-in-100,000 {args.label1} FMR: {x2 * 100000}')
+
+    k = find_nearest(fpr2, 0.00001)
+    y2 = np.round(fnr2[k], 10)
+    print(f'{args.label2} FNMR at 1-in-100,000 FMR: {y2 * 100000}')
 
     plot(args.title, fpr1, tpr1, thr1, fnr1, args.label1,
          fpr2, tpr2, thr2, fnr2, args.label2,

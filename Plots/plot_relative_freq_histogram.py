@@ -6,10 +6,17 @@ import matplotlib.pyplot as plt
 from os import path, makedirs
 import itertools
 from matplotlib.patches import Rectangle
+from scipy.stats import ks_2samp
 
 
 def load_files(authentic_file, impostor_file, ignore_aut=-1, ignore_imp=-1):
-    authentic = np.loadtxt(authentic_file, dtype=np.str)
+    print(f'Loading authentic from {authentic_file}')
+    if authentic_file[-4:] == '.txt':
+        authentic = np.loadtxt(authentic_file, dtype=np.str)
+        print(f'Converting authentic to npy')
+        np.save(authentic_file[:-4] + '.npy', authentic.astype(float))
+    else:
+        authentic = np.load(authentic_file)
 
     if ignore_aut != -1:
         authentic_score = authentic[authentic[:, 0].astype(int) < ignore_aut, 1].astype(float)
@@ -21,7 +28,13 @@ def load_files(authentic_file, impostor_file, ignore_aut=-1, ignore_imp=-1):
     else:
         authentic_score = authentic[:, 2].astype(float)
 
-    impostor = np.loadtxt(impostor_file, dtype=np.str)
+    print(f'Loading impostor from {impostor_file}')
+    if impostor_file[-4:] == '.txt':
+        impostor = np.loadtxt(impostor_file, dtype=np.str)
+        print(f'Converting impostor to npy')
+        np.save(impostor_file[:-4] + '.npy', impostor.astype(float))
+    else:
+        impostor = np.load(impostor_file)
 
     if ignore_imp != -1:
         impostor_score = impostor[impostor[:, 0].astype(int) < ignore_imp, 1].astype(float)
@@ -107,7 +120,6 @@ def plot_histogram(authentic_file1, impostor_file1, l1,
     legend1 = plt.legend(bbox_to_anchor=(0, 1.02, 1, 0.2), loc="lower left",
                          mode="expand", borderaxespad=0, ncol=ncol, fontsize=10, edgecolor='black', handletextpad=0.3)
 
-    # plt.gca().invert_xaxis()
     plt.ylabel('Relative Frequency')
     plt.xlabel('Match Scores')
 
@@ -159,6 +171,21 @@ def plot_histogram(authentic_file1, impostor_file1, l1,
     plt.legend(handles, labels, loc="upper left", fontsize=10)
     plt.gca().add_artist(legend1)
 
+    plot_path = path.join(args.dest, args.name + '.png')
+    plt.savefig(plot_path, dpi=150)
+
+    result = ks_2samp(authentic_score1, authentic_score2)
+    print(f'{l1} and {l2} authentic KS test: {result}')
+    d_prime = (abs(np.mean(authentic_score1) - np.mean(authentic_score2)) /
+               np.sqrt(0.5 * (np.var(authentic_score1) + np.var(authentic_score2))))
+    print(f'{l1} and {l2} authentic d-prime: {d_prime}')
+
+    result = ks_2samp(impostor_score1, impostor_score2)
+    print(f'{l1} and {l2} impostor KS test: {result}')
+    d_prime = (abs(np.mean(impostor_score1) - np.mean(impostor_score2)) /
+               np.sqrt(0.5 * (np.var(impostor_score1) + np.var(impostor_score2))))
+    print(f'{l1} and {l2} impostor d-prime: {d_prime}')
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Plot Score Histogram')
@@ -188,7 +215,3 @@ if __name__ == '__main__':
                    args.authentic3, args.impostor3, args.label3,
                    args.authentic4, args.impostor4, args.label4,
                    args.title)
-
-    plot_path = path.join(args.dest, args.name + '.png')
-
-    plt.savefig(plot_path, dpi=150)
