@@ -18,7 +18,7 @@ def find_nearest(array, value):
 
 
 def compute_roc(authentic_file, impostor_file, ignore_aut=-1, ignore_imp=-1):
-    authentic_score = np.loadtxt(authentic_file, dtype=np.str)
+    authentic_score = np.load(authentic_file)
 
     if ignore_aut != -1:
         authentic_score = authentic_score[authentic_score[:, 0].astype(int) < ignore_aut, 1].astype(float)
@@ -29,7 +29,7 @@ def compute_roc(authentic_file, impostor_file, ignore_aut=-1, ignore_imp=-1):
         authentic_score = authentic_score[:, 2].astype(float)
     authentic_y = np.ones(authentic_score.shape[0])
 
-    impostor_score = np.loadtxt(impostor_file, dtype=np.str)
+    impostor_score = np.load(impostor_file)
 
     if ignore_imp != -1:
         impostor_score = impostor_score[impostor_score[:, 0].astype(int) < ignore_imp, 1].astype(float)

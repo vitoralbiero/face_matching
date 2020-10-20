@@ -5,6 +5,7 @@ from os import path, makedirs
 from multiprocessing import Pool
 import os
 from scipy.spatial import distance
+from datetime import datetime
 
 
 PROBE_FILE = None
@@ -187,6 +188,7 @@ if __name__ == '__main__':
                         help='Metric to us: (1) Cosine Similarity; (2) Euclidean Distance; (3) Chi Square')
 
     args = parser.parse_args()
+    time1 = datetime.now()
 
     if args.gallery is None:
         args.gallery = args.probe
@@ -228,3 +230,5 @@ if __name__ == '__main__':
 
     print(PROBE_FILE)
     print(GALLERY_FILE)
+    time2 = datetime.now()
+    print(time2 - time1)

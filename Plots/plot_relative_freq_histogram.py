@@ -122,6 +122,7 @@ def plot_histogram(authentic_file1, impostor_file1, l1,
 
     plt.ylabel('Relative Frequency')
     plt.xlabel('Match Scores')
+    plt.xlim([-0.5, 1])
 
     plt.tight_layout(pad=0.2)
 
@@ -174,14 +175,14 @@ def plot_histogram(authentic_file1, impostor_file1, l1,
     plot_path = path.join(args.dest, args.name + '.png')
     plt.savefig(plot_path, dpi=150)
 
-    result = ks_2samp(authentic_score1, authentic_score2)
-    print(f'{l1} and {l2} authentic KS test: {result}')
+    # result = ks_2samp(authentic_score1, authentic_score2)
+    # print(f'{l1} and {l2} authentic KS test: {result}')
     d_prime = (abs(np.mean(authentic_score1) - np.mean(authentic_score2)) /
                np.sqrt(0.5 * (np.var(authentic_score1) + np.var(authentic_score2))))
     print(f'{l1} and {l2} authentic d-prime: {d_prime}')
 
-    result = ks_2samp(impostor_score1, impostor_score2)
-    print(f'{l1} and {l2} impostor KS test: {result}')
+    # result = ks_2samp(impostor_score1, impostor_score2)
+    # print(f'{l1} and {l2} impostor KS test: {result}')
     d_prime = (abs(np.mean(impostor_score1) - np.mean(impostor_score2)) /
                np.sqrt(0.5 * (np.var(impostor_score1) + np.var(impostor_score2))))
     print(f'{l1} and {l2} impostor d-prime: {d_prime}')
