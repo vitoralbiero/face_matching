@@ -197,23 +197,23 @@ def plot_histogram(
 
     plt.ylabel("Relative Frequency")
     plt.xlabel("Match Scores")
-    
+
     plt.tight_layout(pad=0.2)
+
+    save_file = open(path.join(args.dest, args.name + ".txt"), "w")
 
     d_prime1 = abs(np.mean(authentic_score1) - np.mean(impostor_score1)) / np.sqrt(
         0.5 * (np.var(authentic_score1) + np.var(impostor_score1))
     )
 
-    save_file = open(path.join(args.dest, args.name + ".txt"), "w")
-
-    print("d-prime for {} is: {} ".format(l1, d_prime1))
-    save_file.write("d-prime for {} is: {} ".format(l1, d_prime1))
     colors = []
     labels = []
 
     colors.append(color_a)
     labels.append("d-prime: {}".format(np.round(d_prime1, 3)))
-    save_file.write("d-prime: {}".format(np.round(d_prime1, 3)))
+
+    print("d-prime for {} is: {} ".format(l1, d_prime1))
+    save_file.write("d-prime for {} is: {}\n".format(l1, d_prime1))
 
     if l2 is not None:
         d_prime2 = abs(np.mean(authentic_score2) - np.mean(impostor_score2)) / np.sqrt(
@@ -223,7 +223,7 @@ def plot_histogram(
         labels.append("d-prime: {}".format(np.round(d_prime2, 3)))
 
         print("d-prime for {} is: {} ".format(l2, d_prime2))
-        save_file.write("d-prime for {} is: {} ".format(l2, d_prime2))
+        save_file.write("d-prime for {} is: {}\n".format(l2, d_prime2))
 
     if l3 is not None:
         d_prime3 = abs(np.mean(authentic_score3) - np.mean(impostor_score3)) / np.sqrt(
@@ -233,7 +233,7 @@ def plot_histogram(
         labels.append("d-prime: {}".format(np.round(d_prime3, 3)))
 
         print("d-prime for {} is: {} ".format(l3, d_prime3))
-        save_file.write("d-prime for {} is: {} ".format(l3, d_prime3))
+        save_file.write("d-prime for {} is: {}\n".format(l3, d_prime3))
 
     if l4 is not None:
         d_prime4 = abs(np.mean(authentic_score4) - np.mean(impostor_score4)) / np.sqrt(
@@ -243,7 +243,7 @@ def plot_histogram(
         labels.append("d-prime: {}".format(np.round(d_prime4, 3)))
 
         print("d-prime for {} is: {} ".format(l4, d_prime4))
-        save_file.write("d-prime: {}".format(np.round(d_prime4, 3)))
+        save_file.write("d-prime: {}\n".format(np.round(d_prime4, 3)))
 
     colors = np.asarray(colors)
     labels = np.asarray(labels)
@@ -263,23 +263,23 @@ def plot_histogram(
     if l2 is not None:
         result = ks_2samp(authentic_score1, authentic_score2)
         print(f"{l1} and {l2} authentic KS test: {result}")
-        save_file.write(f"{l1} and {l2} authentic KS test: {result}")
+        save_file.write(f"{l1} and {l2} authentic KS test: {result}\n")
 
         d_prime = abs(np.mean(authentic_score1) - np.mean(authentic_score2)) / np.sqrt(
             0.5 * (np.var(authentic_score1) + np.var(authentic_score2))
         )
         print(f"{l1} and {l2} authentic d-prime: {d_prime}")
-        save_file.write(f"{l1} and {l2} authentic d-prime: {d_prime}")
+        save_file.write(f"{l1} and {l2} authentic d-prime: {d_prime}\n")
 
         result = ks_2samp(impostor_score1, impostor_score2)
         print(f"{l1} and {l2} impostor KS test: {result}")
-        save_file.write(f"{l1} and {l2} impostor KS test: {result}")
+        save_file.write(f"{l1} and {l2} impostor KS test: {result}\n")
 
         d_prime = abs(np.mean(impostor_score1) - np.mean(impostor_score2)) / np.sqrt(
             0.5 * (np.var(impostor_score1) + np.var(impostor_score2))
         )
         print(f"{l1} and {l2} impostor d-prime: {d_prime}")
-        save_file.write(f"{l1} and {l2} impostor d-prime: {d_prime}")
+        save_file.write(f"{l1} and {l2} impostor d-prime: {d_prime}\n")
 
     save_file.close()
 
