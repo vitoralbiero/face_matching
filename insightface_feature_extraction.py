@@ -4,6 +4,7 @@ https://github.com/deepinsight/insightface
 """
 
 import argparse
+import shutil
 import sys
 from os import listdir, makedirs, path
 
@@ -54,8 +55,8 @@ def extract_features(model, source, destination, weights=None):
         features_name = path.join(dest_path, image_name[:-3] + "npy")
 
         # if path.isfile(features_name):
-        #    print('Skipping...')
-        # continue
+        #     print("Skipping...")
+        #     continue
 
         # print(image_path)
 
@@ -96,7 +97,9 @@ if __name__ == "__main__":
 
     model = face_model.FaceModel(args)
 
-    if not path.exists(args.dest):
-        makedirs(args.dest)
+    if path.exists(args.dest):
+        shutil.rmtree(args.dest)
+
+    makedirs(args.dest)
 
     extract_features(model, args.source, args.dest)
