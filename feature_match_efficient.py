@@ -77,6 +77,9 @@ class Matcher:
         elif self.dataset_name == "CHIYA_VAL":
             subject_id = feature_label[1:-4]
 
+        elif self.dataset_name == "AGEDB":
+            subject_id = subject_id.split("_")[1]
+
         elif (
             self.dataset_name == "PUBLIC_IVS"
             or self.dataset_name == "VGGFACE2"
@@ -159,9 +162,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
     time1 = datetime.now()
 
-    if not path.exists(args.output):
-        makedirs(args.output)
-        shutil.rmtree(args.output)
+    # remove if already exists, to get new copy
+    shutil.rmtree(args.output, ignore_errors=True)
+    makedirs(args.output)
 
     matcher = Matcher(args.probe, args.gallery, args.dataset.upper())
     matcher.match_features()
