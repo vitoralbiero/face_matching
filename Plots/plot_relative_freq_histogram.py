@@ -307,6 +307,8 @@ if __name__ == "__main__":
     if not path.exists(args.dest):
         makedirs(args.dest)
 
+    args.name = str(args.name).replace("/", "_")
+    
     plot_histogram(
         args.authentic1,
         args.impostor1,
